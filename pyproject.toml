@@ -1,0 +1,5 @@
+[tool.flakeheaven]
+unused-arguments-ignore-abstract-functions = false
+
+[tool.flakeheaven.plugins]
+flake8-unused-arguments = ["+*"]

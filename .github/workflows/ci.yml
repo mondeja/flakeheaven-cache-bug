@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+
+jobs:
+  reproduce:
+    name: Reproduce flakeheaven cache bug
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: First lint with cache, should fail
+        run: |
+          failed=0
+          flakeheaven lint file.py || failed=1
+          if [ $failed -eq 0 ]; then
+            echo "flakeheaven lint should have failed"
+            exit 1
+          fi
+      - name: Change configuration
+        run: sed -i s/false/true/ pyproject.toml
+      - name: Second lint with cache, should pass but fails
+        run: |
+          failed=0
+          flakeheaven lint file.py || failed=1
+          if [ $failed -eq 0 ]; then
+            echo "flakeheaven lint should have failed to reproduce the bug, but it passed"
+            exit 1
+          fi
+      - name: Third lint without cache, should pass
+        run: |
+          failed=0
+          pysetenv FLAKEHEAVEN_CACHE_TIMEOUT=0 flakeheaven lint file.py || failed=1
+          if [ $failed -eq 1 ]; then
+            echo "flakeheaven lint without cache should have passed"
+            exit 1
+          fi
