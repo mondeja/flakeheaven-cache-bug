@@ -23,6 +23,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Show initial configuration
         run: cat pyproject.toml
+      - name: Show file to lint
+        run: cat file.py
       - name: First lint with cache, should fail
         run: |
           failed=0
