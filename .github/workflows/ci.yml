@@ -21,6 +21,8 @@ jobs:
           python-version: "3.10"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Show initial configuration
+        run: cat pyproject.toml
       - name: First lint with cache, should fail
         run: |
           failed=0
@@ -30,7 +32,9 @@ jobs:
             exit 1
           fi
       - name: Change configuration
-        run: sed -i s/false/true/ pyproject.toml
+        run: |
+          sed -i s/false/true/ pyproject.toml
+          cat pyproject.toml
       - name: Second lint with cache, should pass but fails
         run: |
           failed=0
